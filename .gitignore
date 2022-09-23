@@ -1,0 +1,8 @@
+# dependencies
+/node_modules
+
+#ide
+.vscode
+
+#enviroment
+*.env
