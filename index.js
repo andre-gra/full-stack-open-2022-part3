@@ -76,6 +76,12 @@ app.post('/api/notes', jsonParser, (request, response) => {
     })
   }
 
+  if (notes.find(note => note.name === body.name)) {
+    return response.status(400).json({ 
+      error: 'name must be unique' 
+    })
+  }
+
   const note = {
     id: getRandomInt(999999999),
     name: body.name,
