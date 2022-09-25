@@ -5,8 +5,12 @@ var morgan = require('morgan')
 // create application/json parser
 app.use(express.json())
 
+// morgan token
+morgan.token('details', function (req, res) {return JSON.stringify(req.body)})
+
 // use morgan
-app.use(morgan('tiny'))
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :details'))
+
 
 let notes = [
   { 
