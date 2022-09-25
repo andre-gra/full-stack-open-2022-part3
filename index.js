@@ -3,7 +3,7 @@ const app = express()
 var bodyParser = require('body-parser')
 
 // create application/json parser
-var jsonParser = bodyParser.json()
+app.use(express.json())
 
 let notes = [
   { 
@@ -67,7 +67,7 @@ app.delete('/api/notes/:id', (request, response) => {
 })
 
 // Add new note
-app.post('/api/notes', jsonParser, (request, response) => {
+app.post('/api/notes', (request, response) => {
   const body = request.body
 
   if (!body.name || !body.number) {
