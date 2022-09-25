@@ -1,9 +1,12 @@
 const express = require('express')
 const app = express()
-var bodyParser = require('body-parser')
+var morgan = require('morgan')
 
 // create application/json parser
 app.use(express.json())
+
+// use morgan
+app.use(morgan('tiny'))
 
 let notes = [
   { 
