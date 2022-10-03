@@ -2,6 +2,8 @@ const express = require('express')
 const app = express()
 var morgan = require('morgan')
 
+app.use(express.static('build'))
+
 // create application/json parser
 app.use(express.json())
 
