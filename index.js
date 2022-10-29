@@ -78,7 +78,6 @@ app.post('/api/notes', (request, response) => {
   }
 
   const note = new Note({
-    id: getRandomInt(999999999),
     name: body.name,
     number: body.number
   })
@@ -86,6 +85,24 @@ app.post('/api/notes', (request, response) => {
   note.save().then(savedNote => {
     response.json(savedNote)
   })
+})
+
+// update name alredy exist
+app.put('/api/notes/:id', (request, response, next) => {
+  const body = request.body
+
+  const note = new Note({
+    _id: request.params.id,
+    name: body.name,
+    number: body.number
+  })
+
+  Note.findByIdAndUpdate(request.params.id, note, { new: true })
+    .then(updatedNote => {
+      response.json(updatedNote)
+    })
+    .catch(error => next(error))
+
 })
 
 const PORT = process.env.PORT
