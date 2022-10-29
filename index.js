@@ -1,6 +1,8 @@
+require('dotenv').config()
 const express = require('express')
 const app = express()
 var morgan = require('morgan')
+const Note = require('./models/note')
 
 app.use(express.static('build'))
 
@@ -13,30 +15,6 @@ morgan.token('details', function (req, res) {return JSON.stringify(req.body)})
 // use morgan
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :details'))
 
-
-let notes = [
-  { 
-    "id": 1,
-    "name": "Arto Hellas", 
-    "number": "040-123456"
-  },
-  { 
-    "id": 2,
-    "name": "Ada Lovelace", 
-    "number": "39-44-5323523"
-  },
-  { 
-    "id": 3,
-    "name": "Dan Abramov", 
-    "number": "12-43-234345"
-  },
-  { 
-    "id": 4,
-    "name": "Mary Poppendieck", 
-    "number": "39-23-6423122"
-  }
-]
-
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);
 }
@@ -46,7 +24,9 @@ app.get('/', (request, response) => {
 })
 
 app.get('/api/notes', (request, response) => {
-  response.json(notes)
+  Note.find({}).then(notes => {
+    response.json(notes)
+  })
 })
 
 app.get('/info', (request, response) => {
@@ -85,24 +65,18 @@ app.post('/api/notes', (request, response) => {
     })
   }
 
-  if (notes.find(note => note.name === body.name)) {
-    return response.status(400).json({ 
-      error: 'name must be unique' 
-    })
-  }
-
-  const note = {
+  const note = new Note({
     id: getRandomInt(999999999),
     name: body.name,
     number: body.number
-  }
+  })
 
-  notes = notes.concat(note)
-
-  response.json(note)
+  note.save().then(savedNote => {
+    response.json(savedNote)
+  })
 })
 
-const PORT = 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })

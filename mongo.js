@@ -5,7 +5,7 @@ if (process.argv.length < 3) {
   process.exit(1)
 }
 
-const password = process.argv[2]
+const password = "open2022"
 
 const url = `mongodb+srv://fullstack:${password}@cluster0.g8bnfzb.mongodb.net/noteApp?retryWrites=true&w=majority`
 
