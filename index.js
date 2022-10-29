@@ -48,11 +48,13 @@ app.get('/api/notes/:id', (request, response) => {
   }
 })
 
+// delete note by id
 app.delete('/api/notes/:id', (request, response) => {
-  const id = Number(request.params.id)
-  notes = notes.filter(note => note.id !== id)
-
-  response.status(204).end()
+  Note.findByIdAndRemove(request.params.id)
+    .then(result => {
+      response.status(204).end()
+    })
+    .catch(error => console.log(error))
 })
 
 // Add new note
