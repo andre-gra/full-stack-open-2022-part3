@@ -40,11 +40,13 @@ app.get('/api/notes', (request, response) => {
 })
 
 app.get('/info', (request, response) => {
-  const n = notes.length
-  response.send(`
-    <p>Phonebook has info for ${n} people</p>
-    <p>${new Date()}</p>
-    `)
+  Note.find({}).then(notes => {
+    const n = notes.length
+    response.send(`
+      <p>Phonebook has info for ${n} people</p>
+      <p>${new Date()}</p>
+      `)
+  })
 })
 
 app.get('/api/notes/:id', (request, response) => {
@@ -56,6 +58,16 @@ app.get('/api/notes/:id', (request, response) => {
   } else {
     response.status(404).end()
   }
+})
+
+app.get('/api/persons/:id', (request, response) => {
+  
+  Note.findById(request.params.id)
+    .then(result => {
+      response.json(result)
+    })
+    .catch(error => next(error))
+
 })
 
 // delete note by id
