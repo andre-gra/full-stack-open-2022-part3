@@ -15,6 +15,16 @@ morgan.token('details', function (req, res) {return JSON.stringify(req.body)})
 // use morgan
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :details'))
 
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  } 
+
+  next(error)
+}
+
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);
 }
@@ -49,12 +59,12 @@ app.get('/api/notes/:id', (request, response) => {
 })
 
 // delete note by id
-app.delete('/api/notes/:id', (request, response) => {
+app.delete('/api/notes/:id', (request, response, next) => {
   Note.findByIdAndRemove(request.params.id)
     .then(result => {
       response.status(204).end()
     })
-    .catch(error => console.log(error))
+    .catch(error => next(error))
 })
 
 // Add new note
@@ -82,3 +92,6 @@ const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
+
+// error handler middleware
+app.use(errorHandler)
