@@ -10,7 +10,7 @@ app.use(express.static('build'))
 app.use(express.json())
 
 // morgan token
-morgan.token('details', function (req, res) {return JSON.stringify(req.body)})
+morgan.token('details', function (req, res) { return JSON.stringify(req.body) })
 
 // use morgan
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :details'))
@@ -20,7 +20,9 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
-  } 
+  } else if (error.name === 'ValidationError') {
+      return response.status(400).send({ error: error.message })
+  }
 
   next(error)
 }
@@ -49,19 +51,8 @@ app.get('/info', (request, response) => {
   })
 })
 
-app.get('/api/notes/:id', (request, response) => {
-  const id = Number(request.params.id)
-  const note = notes.find(note => note.id === id)
-  
-  if (note) {
-    response.json(note)
-  } else {
-    response.status(404).end()
-  }
-})
-
 app.get('/api/persons/:id', (request, response) => {
-  
+
   Note.findById(request.params.id)
     .then(result => {
       response.json(result)
@@ -80,12 +71,12 @@ app.delete('/api/notes/:id', (request, response, next) => {
 })
 
 // Add new note
-app.post('/api/notes', (request, response) => {
+app.post('/api/notes', (request, response, next) => {
   const body = request.body
 
   if (!body.name || !body.number) {
-    return response.status(400).json({ 
-      error: 'name or number missing' 
+    return response.status(400).json({
+      error: 'name or number missing'
     })
   }
 
@@ -94,9 +85,11 @@ app.post('/api/notes', (request, response) => {
     number: body.number
   })
 
-  note.save().then(savedNote => {
-    response.json(savedNote)
-  })
+  note.save()
+    .then(savedNote => {
+      response.json(savedNote)
+    })
+    .catch(error => next(error))
 })
 
 // update name alredy exist
@@ -109,7 +102,7 @@ app.put('/api/notes/:id', (request, response, next) => {
     number: body.number
   })
 
-  Note.findByIdAndUpdate(request.params.id, note, { new: true })
+  Note.findByIdAndUpdate(request.params.id, note, { new: true, runValidators: true, context: 'query' })
     .then(updatedNote => {
       response.json(updatedNote)
     })
