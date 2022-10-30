@@ -10,7 +10,7 @@ app.use(express.static('build'))
 app.use(express.json())
 
 // morgan token
-morgan.token('details', function (req, res) { return JSON.stringify(req.body) })
+morgan.token('details', function (req) { return JSON.stringify(req.body) })
 
 // use morgan
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :details'))
@@ -21,14 +21,10 @@ const errorHandler = (error, request, response, next) => {
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
   } else if (error.name === 'ValidationError') {
-      return response.status(400).send({ error: error.message })
+    return response.status(400).send({ error: error.message })
   }
 
   next(error)
-}
-
-function getRandomInt(max) {
-  return Math.floor(Math.random() * max);
 }
 
 app.get('/', (request, response) => {
@@ -51,7 +47,7 @@ app.get('/info', (request, response) => {
   })
 })
 
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
 
   Note.findById(request.params.id)
     .then(result => {
@@ -64,7 +60,7 @@ app.get('/api/persons/:id', (request, response) => {
 // delete note by id
 app.delete('/api/notes/:id', (request, response, next) => {
   Note.findByIdAndRemove(request.params.id)
-    .then(result => {
+    .then(() => {
       response.status(204).end()
     })
     .catch(error => next(error))
@@ -110,6 +106,7 @@ app.put('/api/notes/:id', (request, response, next) => {
 
 })
 
+// eslint-disable-next-line no-undef
 const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
